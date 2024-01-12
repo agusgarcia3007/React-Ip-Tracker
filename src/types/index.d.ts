@@ -31,3 +31,10 @@ type IpInfo = {
   asn: string;
   org: string;
 };
+
+type ReservedType = {
+  error: boolean;
+  reason: string;
+  reserved: boolean;
+  version: "IPv4";
+};

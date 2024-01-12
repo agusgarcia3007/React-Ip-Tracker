@@ -1,5 +1,5 @@
 import apiRequest from "@/lib/api/ip";
-import { IpInfo } from "@/types";
+import { IpInfo, ReservedType } from "@/types";
 import {
   createContext,
   useCallback,
@@ -12,6 +12,7 @@ type IPContextType = {
   userData: IpInfo;
   handleSearchIp: (ip: string) => Promise<void>;
   requestStatus?: requestStatus;
+  errorMessage?: string;
 };
 
 type requestStatus = "idle" | "pending" | "success" | "error";
@@ -21,6 +22,7 @@ const IpContext = createContext<IPContextType>({} as IPContextType);
 const IpProvider = ({ children }: { children: React.ReactNode }) => {
   const [userData, setUserData] = useState<IpInfo>({} as IpInfo);
   const [requestStatus, setRequestStatus] = useState<requestStatus>("idle");
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     const getUserData = async () => {
@@ -41,7 +43,11 @@ const IpProvider = ({ children }: { children: React.ReactNode }) => {
       setRequestStatus("pending");
       try {
         const { data } = await apiRequest.searchIp(ip);
-        setUserData(data);
+        if ((data as ReservedType).error) {
+          setErrorMessage((data as ReservedType).reason);
+          throw new Error((data as ReservedType).reason);
+        }
+        setUserData(data as IpInfo);
         setRequestStatus("success");
       } catch (error) {
         setRequestStatus("error");
@@ -51,7 +57,9 @@ const IpProvider = ({ children }: { children: React.ReactNode }) => {
   );
 
   return (
-    <IpContext.Provider value={{ userData, handleSearchIp, requestStatus }}>
+    <IpContext.Provider
+      value={{ userData, handleSearchIp, requestStatus, errorMessage }}
+    >
       {children}
     </IpContext.Provider>
   );

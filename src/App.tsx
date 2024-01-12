@@ -1,32 +1,18 @@
-import { useMemo } from "react";
 import IpCard from "@/components/ip-card";
 import Loader from "@/components/loader";
 import Map from "@/components/map";
 import Nav from "@/components/nav";
 import Panel from "@/components/panel";
 import { useIp } from "@/context/ip-context";
+import { useMemo } from "react";
 
 export default function App() {
-  const { userData, requestStatus } = useIp();
+  const { userData, requestStatus, errorMessage } = useIp();
 
-  const isError = useMemo(() => requestStatus === "error", [requestStatus]);
-
-  const isLoading = useMemo(() => requestStatus === "pending", [requestStatus]);
-
-  if (isError) {
-    return <p className="text-red-500">No data available</p>;
-  }
-
-  if (isLoading) {
-    return <Loader />;
-  }
-
-  return (
-    <main className="h-screen bg-background text-primary">
-      <Nav />
-
-      <div className="h-[calc(100vh-40px)]">
-        {userData.latitude && userData.longitude && (
+  const content = useMemo(() => {
+    switch (requestStatus) {
+      case "success":
+        return (
           <Panel
             info={
               <div className="h-full p-4 overflow-y-auto">
@@ -35,8 +21,27 @@ export default function App() {
             }
             map={<Map lat={userData.latitude} long={userData.longitude} />}
           />
-        )}
-      </div>
+        );
+      case "error":
+        return (
+          <div className="flex w-full h-full justify-center items-center">
+            <p className="text-destructive text-xl">
+              {errorMessage || "no data available"}
+            </p>
+          </div>
+        );
+      case "pending":
+        return <Loader />;
+      default:
+        return null;
+    }
+  }, [requestStatus, userData, errorMessage]);
+
+  return (
+    <main className="h-screen bg-background text-primary">
+      <Nav />
+
+      <div className="h-[calc(100vh-40px)]">{content}</div>
     </main>
   );
 }

@@ -42,8 +42,6 @@ export default function IpCard({ userData }: { userData: IpInfo }) {
     return data;
   }, [userData]);
 
-  console.log(remainingData);
-
   return (
     <Card>
       <CardHeader>

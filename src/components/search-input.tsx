@@ -34,11 +34,16 @@ export default function SearchInput() {
     }
 
     handleSearchIp(ip);
+    setIp("");
   }, [handleSearchIp, ip, ipIsValid, toast]);
 
   return (
     <div className="flex w-full max-w-sm items-center space-x-2">
-      <Input placeholder="Enter an ip address..." onChange={handleEnterIp} />
+      <Input
+        placeholder="Enter an ip address..."
+        value={ip || ""}
+        onChange={handleEnterIp}
+      />
       <Button type="button" size="icon" onClick={handleSearch}>
         <Search />
       </Button>
